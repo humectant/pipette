@@ -1,0 +1,89 @@
+####
+# SOURCES:
+#   This section alone can read from env vars for ${SECRETS}:
+#   https://pipenv-es.readthedocs.io/es/stable/advanced.html#injecting-credentials-into-pipfiles-via-environment-variables
+##
+
+[[source]]
+  name = "pypi"
+  url = "https://pypi.org/simple"
+  verify_ssl = true
+####
+# PYTHON VERSION:
+#   We require the latest 3.8 version of python.
+##
+
+[requires]
+  python_version = "3.8"
+####
+# COMMAND ALIASES:
+#   Run with `pipenv run <alias>`
+#   https://pipenv-es.readthedocs.io/es/stable/advanced.html#custom-script-shortcuts
+##
+
+[scripts]
+  # Project preparation
+  setup = "bin/dev/install"
+  install = "bin/install"
+  # Quality control
+  format = "bin/src/format"
+  lint = "bin/src/lint"
+  typecheck = "bin/src/typecheck"
+  # Dev tooling
+  console = "bin/dev/console"
+  debugger = "bin/dev/debug"
+  # Project administration
+  migrate = "bin/db/migrate"
+  # Test with docker-compose
+  test = "bin/test.sh"
+  # Test with docker-compose
+  local-test = "bin/test-local.sh"
+  # Test locally; will fail for integration tests
+  unit-test = "bin/test-unit.sh"
+####
+# APPLICATION REQUIREMENTS:
+#   Always pin to a compatible patch release
+#   https://www.python.org/dev/peps/pep-0440/#compatible-release
+##
+
+[packages]
+  alembic     = "~=1.4.2"   # DB Migrator
+  newrelic    = "~=5.4.0"   # Monitoring
+  sqlalchemy  = "~=1.3.16"  # DB ORM
+  urllib3     = "~=1.25.9"  # HTTP primitives
+  structlog   = "~=20.1.0"  # Structured logging
+  redis       = "~=3.5.3"   # Cache, backend for Celery
+  celery      = "~=4.4.6"   # Task framework
+  uvicorn     = "~=0.11.3"  # ASGI server
+  gunicorn    = "~=20.0.4"  # WSGI server (manages Uvicorn)
+  fastapi     = "~=0.54.1"  # API framework
+  tenacity    = "~=6.1.0"   # Retry
+  requests    = "~=2.23.0"  # HTTP for cephalopods
+  pydantic    = {extras = ["dotenv"], version = "~=1.7.2"}
+  pendulum    = "~=2.1.2"   # Better dates
+####
+#  DEVELOPMENT REQUIREMENTS:
+#   Always pin to a compatible minor release
+#   https://www.python.org/dev/peps/pep-0440/#compatible-release
+##
+
+[dev-packages]
+  # Dev tools
+  black      = "~=19.10b0"  # Formatter
+  bpython    = "~=0.18"     # REPL
+  colorama   = "~=0.4"      # Pretty colors for local logging
+  coverage   = "~=5.0"      # Coverage tool
+  debugpy    = "~=1.1"      # Debug server protocol client
+  flake8     = "~=3.7"      # Linter
+  pre-commit = "~=1.20"     # Git hook installer
+  pylint     = "~=2.4"      # Linter runner
+  pytest     = "~=5.3"      # Test runner
+  pytest-cov = "~=2.8"      # Test runner coverage integration
+  # Typestubs
+  sqlalchemy-stubs = "~=0.3"  # Stubs for SQLAlchemy
+####
+# PIPENV CONFIG:
+##
+
+[pipenv]
+  allow_prereleases = true  # We need this to install the `black` formatter at all

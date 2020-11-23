@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Lints code changes.
+# Assumes bin/setup has been run.
+# Keep up-to-date with .pre-commit-config.yaml.
+
+print_help () {
+  echo "Lints source files."
+  echo " $0 changed:  formats only changed staged files (default)"
+  echo " $0 all:      formats all files"
+  echo " $0 help:     prints this help"
+}
+
+mode="${1:-changed}"
+
+if [[ "$mode" == "help" || "$mode" == "--help" || "$mode" == "-h" ]]; then
+  print_help
+  exit 0
+elif [[ "$mode" == "all" ]]; then
+  args="--all-files"
+elif [[ "$mode" == "changed" ]]; then
+  args=""
+else
+  echo "Unrecognized command <$1>."
+  print_help
+  exit 1
+fi
+
+# Check high-level things
+pre-commit run $args check-executables-have-shebangs
+pre-commit run $args check-merge-conflict
+pre-commit run $args check-symlinks
+
+# Check data files
+pre-commit run $args check-json
+pre-commit run $args check-toml
+pre-commit run $args check-xml
+pre-commit run $args check-yaml
+
+# Check python
+pre-commit run $args check-ast
+pre-commit run $args debug-statements
+pre-commit run $args flake8

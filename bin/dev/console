@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Runs python REPL.
+# Assumes bin/setup has been run.
+
+# Echo commands
+set -x
+
+bpython --interactive

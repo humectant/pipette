@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Formats code changes.
+# Assumes bin/setup has been run.
+# Keep up-to-date with .pre-commit-config.yaml.
+
+print_help () {
+  echo "Formats source files."
+  echo " $0 changed:  formats only changed staged files (default)"
+  echo " $0 all:      formats all files"
+  echo " $0 help:     prints this help"
+}
+
+mode="${1:-changed}"
+
+if [[ "$mode" == "help" || "$mode" == "--help" || "$mode" == "-h" ]]; then
+  print_help
+  exit 0
+elif [[ "$mode" == "all" ]]; then
+  args="--all-files"
+elif [[ "$mode" == "changed" ]]; then
+  args=""
+else
+  echo "Unrecognized command <$1>."
+  print_help
+  exit 1
+fi
+
+# Format whitespace
+pre-commit run $args -v end-of-file-fixer
+pre-commit run $args -v trailing-whitespace
+pre-commit run $args -v mixed-line-ending
+
+# Format data files
+pre-commit run $args -v pretty-format-json
+
+# Format python
+pre-commit run $args -v docformatter
+pre-commit run $args -v black

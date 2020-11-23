@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Prepares a local dev environment.
+# Assumes tools listed in .tool-versions are installed
+# (always true if building with docker)
+# Assumes bin/install has been run.
+
+# Echo commands
+set -x
+
+# Install python development dependencies
+pip install --no-cache-dir pipenv
+pipenv install --dev --pre
+pipenv run pre-commit install --install-hooks --overwrite

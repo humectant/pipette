@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+  api:
+    build:
+      context: .
+      args:
+        # Allows us to test inside container
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    ports:
+      - "80:80"
+    volumes:
+      - "./:/app"
+    env_file:
+      - .env
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "${DOCKER_STOP_GRACE_PERIOD:-3s}"
+    depends_on:
+      - rabbitmq
+      - redis
+    command: /start-reload.sh
+
+  worker:
+    build:
+      context: .
+      args:
+        # Allows us to test inside container
+        INSTALL_DEV: ${INSTALL_DEV-false}
+    volumes:
+      - "./:/app"
+    env_file:
+      - .env
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "${DOCKER_STOP_GRACE_PERIOD:-3s}"
+    depends_on:
+      - rabbitmq
+      - redis
+    command: "celery worker -B -l info -A app.task.registry"
+    #command: bash -c "while true; do sleep 1; done"  # Infinite loop to keep container live doing nothing
+
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    networks:
+      - default
+    environment:
+      # Minimize logging
+      - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,warning}]}]
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    restart: always
+
+volumes:
+  rabbitmq-data:
+    driver: local
+  redis-data:
+    driver: local

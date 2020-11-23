@@ -1,0 +1,111 @@
+default_language_version:
+  python: python3.8
+
+repos:
+  ####
+  # Maintain command order parity with:
+  #  bin/src/format
+  #  bin/src/lint
+  #  bin/src/typecheck
+  # respectively.
+  #
+  # Running auto-formatting pre-commit hooks
+  #  should prevent most linting from failing,
+  #  but it's useful to be able to run both
+  #  separately.
+  #
+  # For instance, the CI build in .circleci/config.yml
+  #  will run just bin/src/lint as a sanity check,
+  #  without running auto-formatters first:
+  #  since we expect auto-formatting pre-commits
+  #  to prevent linting from failing, but want
+  #  to ensure hotfixes are linted, even if
+  #  they are not introduced from a
+  #  git-hook-enabled vector.
+  ##
+
+  ####
+  # BIN/SRC/FORMAT
+  ##
+
+  # Format whitespace:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: end-of-file-fixer                 # Makes sure files end in a newline and only a newline.
+      - id: trailing-whitespace               # Trims trailing whitespace.
+        args:
+          - --markdown-linebreak-ext=md       # Preserve Markdown hard linebreaks (https://github.github.com/gfm/#hard-line-break)
+      - id: mixed-line-ending                 # Replaces or checks mixed line ending.
+
+  # Format JSON:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      # Checks that all your JSON files have keys sorted and properly indented.
+      - id: pretty-format-json
+        args:
+          - --autofix  # Turns linter into formatter with --autofix.
+          - --indent=2 # Indent with two spaces for brevity.
+
+  # Format Python docstrings
+  - repo: https://github.com/myint/docformatter
+    rev: v1.3.1
+    hooks:
+      # Formats docstrings to follow PEP 257.
+      - id: docformatter
+        args:
+          - --in-place                # Turns linter into formatter with --in-place.
+          - --wrap-summaries=105      # Wrap the summary with project convention line width of 105.
+          - --wrap-descriptions=105   # Wrap the rest with project convention line width of 105.
+
+  # Format Python code:
+  - repo: https://github.com/ambv/black
+    rev: 19.10b0
+    hooks:
+      # Format everything else with prejudice.
+      - id: black
+
+  ####
+  # BIN/SRC/LINT
+  ##
+
+  # Lint for high-level red flags
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+      - id: check-executables-have-shebangs   # Checks that non-binary executables have a proper shebang.
+      - id: check-merge-conflict              # Checks for files that contain merge conflict strings.
+      - id: check-symlinks                    # Checks for symlinks which do not point to anything.
+
+  # Lint raw data files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-json  # Attempts to load all json files to verify syntax.
+      - id: check-toml  # Attempts to load all TOML files to verify syntax.
+      - id: check-xml   # Attempts to load all xml files to verify syntax.
+      - id: check-yaml  # Attempts to load all yaml files to verify syntax.
+
+  # Lint python
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-ast         # Simply check whether files parse as valid python.
+      - id: debug-statements  # Check for debugger imports and py37+ breakpoint() calls in python source.
+      - id: flake8            # Run flake8 on your python files.
+
+  ####
+  # BIN/SRC/TYPECHECK
+  ##
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: d6e31ae # pre-commit/mirrors-mypy v0.782
+    hooks:
+      - id: mypy
+        name: Typecheck source files
+        additional_dependencies:
+          - 'sqlalchemy-stubs'
+
+        args:
+          - --warn-unused-configs # Takes effect when above is removed

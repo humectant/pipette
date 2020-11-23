@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Type-checks code changes.
+# Assumes bin/setup has been run.
+# Keep up-to-date with .pre-commit-config.yaml.
+
+print_help () {
+  echo "Type-checks source files."
+  echo " $0 changed:  checks only changed staged files (default)"
+  echo " $0 all:      checks all files"
+  echo " $0 help:     prints this help"
+}
+
+mode="${1:-changed}"
+
+if [[ "$mode" == "help" || "$mode" == "--help" || "$mode" == "-h" ]]; then
+  print_help
+  exit 0
+elif [[ "$mode" == "all" ]]; then
+  args="--all-files"
+elif [[ "$mode" == "changed" ]]; then
+  args=""
+else
+  echo "Unrecognized command <$1>."
+  print_help
+  exit 1
+fi
+
+# Run mypy
+pre-commit run $args -v mypy

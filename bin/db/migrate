@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Execute migrations.
+# Assumes bin/setup has been run.
+
+db_config = "app/db/alembic.ini"
+
+# Echo commands
+set -x
+
+alembic -c $db_config $*

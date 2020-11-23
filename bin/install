@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Installs dependencies.
+# Assumes tools listed in .tool-versions are installed
+# (always true if building with docker)
+
+# Echo commands
+set -x
+
+# Install python dependencies
+pip install --no-cache-dir pipenv
+pipenv sync
